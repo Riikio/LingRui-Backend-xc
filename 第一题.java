@@ -19,8 +19,8 @@ public class Main {
             switch (choice){
                 case 1://存款
                     System.out.print("请输入存款金额: ");
-                    long depositAmount = sc.nextLong();
                     if (sc.hasNextLong()) {
+                        long depositAmount = sc.nextLong();
                         if (depositAmount <= 0) {
                             System.out.println("存款金额必须大于 0");
                         }
