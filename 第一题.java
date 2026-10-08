@@ -17,24 +17,34 @@ public class Main {
             System.out.print("请选择操作 (1-4): ");
             int choice = sc.nextInt();
             switch (choice){
-                case 1:
+                case 1://存款
                     System.out.print("请输入存款金额: ");
+                    long depositAmount = sc.nextLong();
                     if (sc.hasNextLong()) {
-                        long depositAmount = sc.nextLong();
-                                balance += depositAmount;
-                                System.out.println("存款成功！当前余额: " + balance);
+                        if (depositAmount <= 0) {
+                            System.out.println("存款金额必须大于 0");
+                        }
+                        else {
+                            balance += depositAmount;
+                            System.out.println("存款成功！当前余额: " + balance);
+                        }
                     }
                     break;
-                case 2:
+                case 2: // 取款
                     System.out.print("请输入取款金额: ");
                     if (sc.hasNextLong()) {
                         long withdrawAmount = sc.nextLong();
-                       if (withdrawAmount > balance) {
+                        if (withdrawAmount <= 0) {
+                            System.out.println("取款金额必须大于 0");
+                        } else if (withdrawAmount > balance) {
                             System.out.println("余额不足");
-                        } else {
+                        } else if (withdrawAmount <= balance){
                             balance -= withdrawAmount;
                             System.out.println("取款成功！当前余额: " + balance);
                         }
+                    } else {
+                        System.out.println("输入无效");
+                        sc.next(); // 清除无效输入
                     }
                     break;
                 case 3:
