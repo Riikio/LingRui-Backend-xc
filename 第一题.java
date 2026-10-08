@@ -44,6 +44,9 @@ public class Main {
                     System.out.println("谢谢使用，再见！");
                     running = false;
                     break;
+                default:
+                    System.out.println("输入无效，请输入数字1-4");
+                    break;
             }
         }
     }
