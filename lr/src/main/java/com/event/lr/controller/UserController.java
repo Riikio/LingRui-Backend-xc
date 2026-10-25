@@ -38,6 +38,12 @@ public class UserController {
         if (password.length() < u.getPasswordMinlength()) {
             return Result.error(400, "密码长度错误,应该大于"+u.getPasswordMinlength() + "位", null);//密码长度错误
         }
+        if (username == null) {
+            return Result.error(400, "用户名不能为空", null);//用户名不能为空
+        }
+        if (password == null) {
+            return Result.error(400, "密码不能为空", null);//密码不能为空
+        }
         //查询用户是否存在
         User user = userService.findByUsername(username);
         if (user == null) {
@@ -59,6 +65,12 @@ public class UserController {
         }
         if (password.length() < u.getPasswordMinlength()) {
             return Result.error(400, "密码长度错误,应该大于"+u.getPasswordMinlength() + "位", null);//密码长度错误
+        }
+        if (username == null) {
+            return Result.error(400, "用户名不能为空", null);//用户名不能为空
+        }
+        if (password == null) {
+            return Result.error(400, "密码不能为空", null);//密码不能为空
         }
         User loginUser = userService.findByUsername(username);
         if (loginUser == null) {
