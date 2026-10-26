@@ -4,20 +4,14 @@ import com.event.lr.cfg.usercfg;
 import com.event.lr.pojo.User;
 import com.event.lr.service.UserService;
 import com.event.lr.utils.Md5Util;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.DialectOverride;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.event.lr.pojo.Result;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Validated
@@ -62,8 +56,16 @@ public class UserController {
         }
         else return checkResult;
     }
+
+
     @GetMapping("/getUserName")
-    public List<String> getUserName() {
-        return userService.getAllUserName();
+    public Result getAllUserNameByPage(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        List list = userService.getAllUserNameByPage(page, size);
+        long userCount = userService.countAll();
+        Map<String, Object> information = new HashMap<>();//使用哈希映射存储信息
+        information.put("userCount", userCount);
+        information.put("page", page);
+        information.put("list", list);
+        return Result.success(information);
     }
 }
