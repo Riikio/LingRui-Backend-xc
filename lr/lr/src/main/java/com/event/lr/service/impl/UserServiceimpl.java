@@ -8,12 +8,15 @@ import com.event.lr.utils.Md5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserServiceimpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+
     @Override
     public User findByUsername(String username) {
         User user = userMapper.findByUsername(username);
@@ -25,22 +28,54 @@ public class UserServiceimpl implements UserService {
     }
 
     @Override
-    public void register(String username, String password) {
-
-
-            //加密密码
-            String md5Password = Md5Util.getMD5String(password);
-            //添加用户
-            userMapper.add(username, md5Password);
+    public Result register(String username, String password, usercfg u) {
+        Result checkResult = check(username, password, u);
+        if (!checkResult.getCode().equals(200)) {
+            return checkResult;
+        }
+        User user = findByUsername(username);
+        if (user != null) {
+            return Result.error(-1, "用户名已存在", null);//用户名已存在
+        }
+        //加密密码
+        String md5Password = Md5Util.getMD5String(password);
+        //添加用户
+        userMapper.add(username, md5Password);
+        return Result.success();//注册成功
     }
+    //登录用户
     @Override
-    public List<String> getAllUserNameByPage(int page, int size) {
+    public Result login(String username, String password, usercfg u) {
+        Result checkResult = check(username, password, u);
+        if (!checkResult.getCode().equals(200)) {
+            return checkResult;
+        }
+        User loginUser = findByUsername(username);
+        if (loginUser == null) {
+            return Result.error(404, "用户不存在", null);//用户不存在
+        }
+        if (loginUser.getPassword().equals(Md5Util.getMD5String(password))) {
+            return Result.success("JWT token令牌");//登录成功
+        } else return Result.error(401, "密码错误", null);//密码错误
+    }
+
+    //获取所有用户名
+    @Override
+    public Result getAllUserNameByPage(int page, int size) {
         if(page < 1) page = 1;
         if(size < 1) size = 10;//默认每一页最少输出量
         if(size > 100) size = 100;//防止每一页输出太多
         int offset = (page - 1) * size;
-        return userMapper.getAllUserNameByPage(offset, size);
+        List list = userMapper.getAllUserNameByPage(offset, size);
+        long userCount = userMapper.countAll();
+        Map<String, Object> information = new HashMap<>();//使用哈希映射存储信息
+        information.put("userCount", userCount);
+        information.put("page", page);
+        information.put("list", list);
+        return Result.success(information);
     }
+
+    //输入条件判断
     @Override
     public Result check(String username, String password, usercfg u) {
         if (username.isEmpty()) {
