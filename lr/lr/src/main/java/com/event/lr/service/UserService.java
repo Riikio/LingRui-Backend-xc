@@ -14,7 +14,9 @@ public interface UserService {
     //注册用户
     void register(String username, String password);
     //获取所有用户名
-    List<String> getAllUserName();
+    List<String> getAllUserNameByPage(int page, int size);
     //输入条件判断
     Result check(String username, String password, usercfg u);
+    //统计页数
+    long countAll();
 }

@@ -17,6 +17,9 @@ public interface UserMapper {
     @Insert("insert into user(username,password) values(#{username},#{md5Password})")
     void add(String username, String md5Password);
     //获取所有用户名
-    @Select("select username from user")
-    List<String> getAllUserName();
+    @Select("select username from user limit #{offset}, #{size}")
+    List<String> getAllUserNameByPage(int offset, int size);
+    //统计页数
+    @Select("select count(*) from user")
+    long countAll();
 }

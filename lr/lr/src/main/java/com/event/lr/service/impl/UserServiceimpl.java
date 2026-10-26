@@ -19,6 +19,10 @@ public class UserServiceimpl implements UserService {
         User user = userMapper.findByUsername(username);
         return user;
     }
+    @Override
+    public long countAll() {
+        return userMapper.countAll();
+    }
 
     @Override
     public void register(String username, String password) {
@@ -30,8 +34,12 @@ public class UserServiceimpl implements UserService {
             userMapper.add(username, md5Password);
     }
     @Override
-    public List<String> getAllUserName() {
-        return userMapper.getAllUserName();
+    public List<String> getAllUserNameByPage(int page, int size) {
+        if(page < 1) page = 1;
+        if(size < 1) size = 10;//默认每一页最少输出量
+        if(size > 100) size = 100;//防止每一页输出太多
+        int offset = (page - 1) * size;
+        return userMapper.getAllUserNameByPage(offset, size);
     }
     @Override
     public Result check(String username, String password, usercfg u) {
