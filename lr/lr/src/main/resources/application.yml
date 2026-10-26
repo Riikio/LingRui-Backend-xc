@@ -1,0 +1,19 @@
+spring:
+ datasource:
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  url: jdbc:mysql://127.0.0.1:3306/event?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+  username: root
+  password: 1234
+
+user1:
+  password:
+    # 密码最小长度
+    minlength: 8
+  username:
+    # 用户名长度范围
+    minlength: 3
+    maxlength: 20
+    # 允许的字符
+    allowedpattern: "^[A-Za-z0-9_]+$"
+
+
