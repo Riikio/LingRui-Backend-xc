@@ -1,13 +1,14 @@
 package com.event.lr.service.impl;
+import com.event.lr.cfg.PasswordConfig;
 import com.event.lr.cfg.usercfg;
 import com.event.lr.mapper.UserMapper;
 import com.event.lr.pojo.Result;
 import com.event.lr.pojo.User;
 import com.event.lr.service.UserService;
+import com.event.lr.utils.JwtUtil;
 import com.event.lr.utils.Md5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,13 @@ import java.util.Map;
 public class UserServiceimpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private jakarta.servlet.http.HttpServletRequest HttpServletRequest;
+    @Autowired
+    private jakarta.servlet.http.HttpServletResponse HttpServletResponse;
+    @Autowired
+    private PasswordConfig passwordConfig;
+
 
     @Override
     public User findByUsername(String username) {
@@ -38,30 +46,44 @@ public class UserServiceimpl implements UserService {
             return Result.error(-1, "用户名已存在", null);//用户名已存在
         }
         //加密密码
-        String md5Password = Md5Util.getMD5String(password);
+        String codedPassword = passwordConfig.passwordEncoder().encode(password);
         //添加用户
-        userMapper.add(username, md5Password);
-        return Result.success();//注册成功
+        userMapper.add(username, codedPassword);
+        return Result.success(codedPassword);//注册成功
     }
     //登录用户
     @Override
-    public Result login(String username, String password, usercfg u) {
-        Result checkResult = check(username, password, u);
-        if (!checkResult.getCode().equals(200)) {
-            return checkResult;
+    public Result login(String username, String password, usercfg u, String token) {
+        if(token == null) {
+            Result checkResult = check(username, password, u);
+            if (!checkResult.getCode().equals(200)) {
+                return checkResult;
+            }
+            User loginUser = findByUsername(username);
+            if (loginUser == null) {
+                return Result.error(404, "用户不存在", null);//用户不存在
+            }
+            if (passwordConfig.passwordEncoder().matches(password, loginUser.getPassword())) {
+                Map<String, Object> claims = new HashMap<>();
+                claims.put("id", loginUser.getId());
+                claims.put("username", username);
+                token = JwtUtil.genToken(claims);//生成JWT token
+                return Result.success(token);//登录成功，并返回token
+            }
         }
-        User loginUser = findByUsername(username);
-        if (loginUser == null) {
-            return Result.error(404, "用户不存在", null);//用户不存在
+        else try {
+            Map<String, Object> claims = JwtUtil.parseToken(token);
+            return Result.success("近12h内登录过，实现免登录");
+        } catch (Exception e) {
+            HttpServletResponse.setStatus(401);
+            return Result.error(401, "未登录", null);//未登录
         }
-        if (loginUser.getPassword().equals(Md5Util.getMD5String(password))) {
-            return Result.success("JWT token令牌");//登录成功
-        } else return Result.error(401, "密码错误", null);//密码错误
+        return Result.error(401, "密码错误", null);//密码错误
     }
 
     //获取所有用户名
     @Override
-    public Result getAllUserNameByPage(int page, int size) {
+    public Result getAllUserNameByPage(int page, int size, String token) {
         if(page < 1) page = 1;
         if(size < 1) size = 10;//默认每一页最少输出量
         if(size > 100) size = 100;//防止每一页输出太多
@@ -70,18 +92,27 @@ public class UserServiceimpl implements UserService {
         long userCount = userMapper.countAll();
         Map<String, Object> information = new HashMap<>();//使用哈希映射存储信息
         information.put("userCount", userCount);
+        information.put("encoder", passwordConfig.getEncoder());
         information.put("page", page);
         information.put("list", list);
-        return Result.success(information);
+        //方法业务部分
+
+        //JWT令牌验证部分
+        try {
+            Map<String, Object> claims = JwtUtil.parseToken(token);
+            return Result.success(information);
+        } catch (Exception e) {
+            HttpServletResponse.setStatus(401);
+            return Result.error(401, "未登录", null);//未登录
+        }
     }
 
     //输入条件判断
-    @Override
-    public Result check(String username, String password, usercfg u) {
-        if (username.isEmpty()) {
+    private Result check(String username, String password, usercfg u) {
+        if (username == null || username.isEmpty()) {
             return Result.error(400, "用户名不能为空", null);//用户名不能为空
         }
-        if (password.isEmpty()) {
+        if (password == null || password.isEmpty()) {
             return Result.error(400, "密码不能为空", null);//密码不能为空
         }
         if (!username.matches(u.getAllowedpattern())) {

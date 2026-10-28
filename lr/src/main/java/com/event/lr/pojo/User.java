@@ -1,17 +1,26 @@
 package com.event.lr.pojo;
 
+
+import org.apache.ibatis.annotations.Select;
+
 public class User {
+
     private String username;
     private String password;
+    private int id;
 
     public User(String username, String password, String data) {
         this.username = username;
         this.password = password;
     }
-    public User() {
+
+    public int getId() {
+        return id;
     }
 
-
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;

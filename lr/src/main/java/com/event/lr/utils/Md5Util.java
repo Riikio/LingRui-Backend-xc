@@ -1,6 +1,8 @@
 package com.event.lr.utils;
 
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

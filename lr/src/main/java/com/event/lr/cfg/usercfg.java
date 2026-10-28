@@ -17,6 +17,16 @@ public class usercfg  {
     private int usernameMaxlength;
     @Value("${user1.username.allowedpattern}")
     private String allowedpattern;
+    @Value("${web.security.encoder}")
+    private String encoder;
+
+    public String getEncoder() {
+        return encoder;
+    }
+
+    public void setEncoder(String encoder) {
+        this.encoder = encoder;
+    }
 
     public void setPasswordMinlength(int passwordMinlength) {
         this.passwordMinlength = passwordMinlength;

@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e){
         e.printStackTrace();
-        return Result.error(400,StringUtils.hasLength(e.getMessage())? e.getMessage() : "操作失败",null);
+        return Result.error(401,StringUtils.hasLength(e.getMessage())? e.getMessage() : "未登录",null);
     }
 }//全局异常拦截器
 

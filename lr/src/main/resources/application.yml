@@ -16,4 +16,14 @@ user1:
     # 允许的字符
     allowedpattern: "^[A-Za-z0-9_]+$"
 
+web:
+  security:
+    encoder: scrypt # 可改为 pbkdf2、scrypt、bcrypt 等
 
+
+debug: true
+logging:
+  level:
+    root: INFO
+    org.springframework.boot: DEBUG
+    org.springframework.beans: DEBUG
